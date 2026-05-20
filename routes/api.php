@@ -1,5 +1,16 @@
 <?php
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ServiceController;
+use App\Http\Controllers\Api\CustomerController;
+use Illuminate\Support\Facades\Route;
 
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout']);
+Route::get('/dashboard-stats', [OrderController::class, 'dashboardStats']);
 Route::post('/orders', [OrderController::class, 'store']); // Untuk simpan transaksi
 Route::get('/orders', [OrderController::class, 'index']); // Untuk tampil di Riwayat (Hal 4)
+Route::get('/services', [ServiceController::class, 'index']);
+Route::post('/services', [ServiceController::class, 'store']);
+Route::get('/customers', [CustomerController::class, 'index']);
+Route::post('/customers', [CustomerController::class, 'store']);

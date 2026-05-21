@@ -8,9 +8,10 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
 Route::get('/dashboard-stats', [OrderController::class, 'dashboardStats']);
-Route::post('/orders', [OrderController::class, 'store']); // Untuk simpan transaksi
-Route::get('/orders', [OrderController::class, 'index']); // Untuk tampil di Riwayat (Hal 4)
+Route::post('/orders', [OrderController::class, 'store']);
+Route::get('/orders', [OrderController::class, 'index']);
 Route::get('/services', [ServiceController::class, 'index']);
 Route::post('/services', [ServiceController::class, 'store']);
 Route::get('/customers', [CustomerController::class, 'index']);
 Route::post('/customers', [CustomerController::class, 'store']);
+Route::patch('/transactions/{id}/status', [App\Http\Controllers\Api\OrderController::class, 'updateStatus']);

@@ -26,7 +26,6 @@ class AuthController extends Controller
             ]);
         }
 
-        // Check user by email or name
         $user = User::where('email', $request->username)
                     ->orWhere('name', $request->username)
                     ->first();

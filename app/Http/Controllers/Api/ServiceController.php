@@ -18,25 +18,30 @@ class ServiceController extends Controller
         ]);
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'harga' => 'required|integer|min:0',
-            'satuan' => 'required|string|in:kg,item',
-            'kategori' => 'required|string|in:normal,express'
+public function store(Request $request)
+{
+    if ($request->has('kategori')) {
+        $request->merge([
+            'kategori' => strtolower($request->kategori)
         ]);
-
-        $service = Layanan::create([
-            'nama' => $request->nama,
-            'harga' => $request->harga,
-            'satuan' => $request->satuan,
-            'kategori' => $request->kategori
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $service
-        ], 201);
     }
+
+    $request->validate([
+        'nama' => 'required|string|max:255',
+        'harga' => 'required|integer|min:0',
+        'satuan' => 'required|string|in:kg,item',
+        'kategori' => 'required|string|in:normal,express' // Dijamin aman karena sudah di-lowercase
+    ]);
+
+    $service = Layanan::create([
+        'nama' => $request->nama,
+        'harga' => $request->harga,
+        'satuan' => $request->satuan,
+        'kategori' => $request->kategori
+    ]);
+
+    return response()->json([
+        'status' => 'success',
+        'data' => $service
+    ], 201);
 }

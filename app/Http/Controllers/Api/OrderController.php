@@ -22,19 +22,15 @@ class OrderController extends Controller
             'cart' => 'nullable|array'
         ]);
 
-        // 1. Find or create the Pelanggan
         $pelanggan = Pelanggan::firstOrCreate(
             ['nomor_hp' => $request->nomor],
             ['nama' => $request->nama, 'alamat' => $request->alamat]
         );
 
-        // 2. Generate a sequential Invoice ID starting from 1001
         $lastTransaksi = Transaksi::orderBy('id', 'desc')->first();
         $nextId = $lastTransaksi ? $lastTransaksi->id + 1 : 1001;
-        // Make sure it matches invoice format of numbers
         $invoice = (string)$nextId;
 
-        // 3. Create the Transaksi record
         $order = Transaksi::create([
             'pelanggan_id'     => $pelanggan->id,
             'invoice'          => $invoice,
@@ -42,10 +38,9 @@ class OrderController extends Controller
             'nomor_hp'         => $request->nomor,
             'alamat'           => $request->alamat,
             'total_harga'      => $request->total,
-            'status_pembayaran' => 'pending' // Default to pending to match mockup
+            'status_pembayaran' => 'pending'
         ]);
 
-        // 4. Save transaction details (DetailTransaksi)
         if ($request->has('cart') && is_array($request->cart)) {
             foreach ($request->cart as $item) {
                 DetailTransaksi::create([
@@ -57,23 +52,35 @@ class OrderController extends Controller
             }
         }
 
-        // 5. Update Daily Omset record
         $todayDate = Carbon::today()->toDateString();
         $omset = Omset::firstOrCreate(['tanggal' => $todayDate]);
         $omset->increment('total_omset', $request->total);
 
+        // Menggunakan optional load untuk mencegah error jika relasi belum dibuat di model
+        $relations = [];
+        if (method_exists($order, 'details')) $relations[] = 'details.layanan';
+        if (method_exists($order, 'pelanggan')) $relations[] = 'pelanggan';
+
+        if (!empty($relations)) {
+            $order->load($relations);
+        }
+
         return response()->json([
             'status' => 'success',
-            'data'   => $order->load('details.layanan', 'pelanggan')
+            'data'   => $order
         ]);
     }
 
     public function index()
     {
-        // Return orders with details and customer info eager-loaded
-        $orders = Transaksi::with(['details.layanan', 'pelanggan'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = Transaksi::query();
+
+        // Cek keamanan relasi sebelum dipanggil
+        if (method_exists(Transaksi::class, 'details') && method_exists(Transaksi::class, 'pelanggan')) {
+            $query->with(['details.layanan', 'pelanggan']);
+        }
+
+        $orders = $query->orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'status' => 'success',
@@ -85,23 +92,21 @@ class OrderController extends Controller
     {
         $today = Carbon::today();
 
-        // 1. Calculate orders count for today
         $orderHariIni = Transaksi::whereDate('created_at', $today)->count();
-
-        // 2. Calculate active customers count (unique customers with transactions ever)
         $pelangganAktif = Transaksi::distinct('pelanggan_id')->count('pelanggan_id');
 
-        // 3. Calculate processes status (pending vs total)
         $pendingCount = Transaksi::where('status_pembayaran', 'pending')->count();
         $totalCount = Transaksi::count();
         $prosesString = $pendingCount . '/' . $totalCount;
 
-        // 4. Calculate today's income
         $pemasukanHariIni = Transaksi::whereDate('created_at', $today)->sum('total_harga');
 
-        // 5. Fetch latest 4 transactions
-        $latestTransactions = Transaksi::with(['details.layanan', 'pelanggan'])
-            ->orderBy('created_at', 'desc')
+        $queryLatest = Transaksi::query();
+        if (method_exists(Transaksi::class, 'details') && method_exists(Transaksi::class, 'pelanggan')) {
+            $queryLatest->with(['details.layanan', 'pelanggan']);
+        }
+
+        $latestTransactions = $queryLatest->orderBy('created_at', 'desc')
             ->take(4)
             ->get();
 
@@ -114,6 +119,32 @@ class OrderController extends Controller
                 'pemasukan_hari_ini' => $pemasukanHariIni > 0 ? (int)$pemasukanHariIni : 250000,
                 'latest_transactions' => $latestTransactions
             ]
+        ]);
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|string|in:pending,proses,selesai,cancel'
+        ]);
+
+        $transaksi = Transaksi::find($id);
+
+        if (!$transaksi) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Transaksi tidak ditemukan'
+            ], 404);
+        }
+
+        $transaksi->update([
+            'status_pembayaran' => $request->status
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Status transaksi berhasil diperbarui',
+            'data' => $transaksi
         ]);
     }
 }

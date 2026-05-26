@@ -19,7 +19,7 @@ class ServiceController extends Controller
     }
 
 public function store(Request $request)
-{
+    {
     if ($request->has('kategori')) {
         $request->merge([
             'kategori' => strtolower($request->kategori)
@@ -44,4 +44,5 @@ public function store(Request $request)
         'status' => 'success',
         'data' => $service
     ], 201);
+}
 }

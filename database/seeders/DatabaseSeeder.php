@@ -29,12 +29,24 @@ class DatabaseSeeder extends Seeder
         $layananNormal2 = Layanan::create(['nama' => 'Setrika Saja', 'harga' => 8000, 'satuan' => 'kg', 'kategori' => 'normal']);
         $layananNormal3 = Layanan::create(['nama' => 'Cuci Kering Setrika', 'harga' => 12000, 'satuan' => 'kg', 'kategori' => 'normal']);
         $layananNormal4 = Layanan::create(['nama' => 'Pembersih Pakaian', 'harga' => 15000, 'satuan' => 'item', 'kategori' => 'normal']);
+        Layanan::create(['nama' => 'Cuci Selimut', 'harga' => 20000, 'satuan' => 'item', 'kategori' => 'normal']);
+        Layanan::create(['nama' => 'Cuci Gorden', 'harga' => 15000, 'satuan' => 'kg', 'kategori' => 'normal']);
+        Layanan::create(['nama' => 'Cuci Seprai', 'harga' => 15000, 'satuan' => 'item', 'kategori' => 'normal']);
+        Layanan::create(['nama' => 'Permak Pakaian', 'harga' => 15000, 'satuan' => 'item', 'kategori' => 'normal']);
+        Layanan::create(['nama' => 'Cuci Bed Cover', 'harga' => 25000, 'satuan' => 'item', 'kategori' => 'normal']);
+        Layanan::create(['nama' => 'Cuci Sepatu', 'harga' => 30000, 'satuan' => 'pasang', 'kategori' => 'normal']);
 
         // Express Category
         $layananExpress1 = Layanan::create(['nama' => 'Cuci & Lipat', 'harga' => 15000, 'satuan' => 'kg', 'kategori' => 'express']);
         $layananExpress2 = Layanan::create(['nama' => 'Setrika Saja', 'harga' => 12000, 'satuan' => 'kg', 'kategori' => 'express']);
         $layananExpress3 = Layanan::create(['nama' => 'Cuci Kering Setrika', 'harga' => 18000, 'satuan' => 'kg', 'kategori' => 'express']);
         $layananExpress4 = Layanan::create(['nama' => 'Pembersih Pakaian', 'harga' => 22000, 'satuan' => 'item', 'kategori' => 'express']);
+        Layanan::create(['nama' => 'Cuci Selimut', 'harga' => 30000, 'satuan' => 'item', 'kategori' => 'express']);
+        Layanan::create(['nama' => 'Cuci Gorden', 'harga' => 22000, 'satuan' => 'kg', 'kategori' => 'express']);
+        Layanan::create(['nama' => 'Cuci Seprai', 'harga' => 22000, 'satuan' => 'item', 'kategori' => 'express']);
+        Layanan::create(['nama' => 'Permak Pakaian', 'harga' => 25000, 'satuan' => 'item', 'kategori' => 'express']);
+        Layanan::create(['nama' => 'Cuci Bed Cover', 'harga' => 37000, 'satuan' => 'item', 'kategori' => 'express']);
+        Layanan::create(['nama' => 'Cuci Sepatu', 'harga' => 45000, 'satuan' => 'pasang', 'kategori' => 'express']);
 
         // 3. Seed Customers (Pelanggan)
         $customer1 = Pelanggan::create(['nama' => 'Amri Pratama', 'nomor_hp' => '08123456789', 'alamat' => 'Tenggilis Mejoyo']);
@@ -45,7 +57,7 @@ class DatabaseSeeder extends Seeder
         // 4. Seed Transaction Records (Transaksi & DetailTransaksi)
         // Transaction 1: Amri Pratama (2 days ago)
         // Service: Cuci kering setrika (Normal) x 1.25 kg -> Subtotal: 15.000, Tax (12.5%): 1.875, Total: 16.875
-        $date1 = Carbon::now()->subDays(2);
+        $date1 = Carbon::now()->subDays(2)->setTime(9, 15, 0);
         $tx1 = Transaksi::create([
             'pelanggan_id'      => $customer1->id,
             'invoice'           => '1001',
@@ -68,7 +80,7 @@ class DatabaseSeeder extends Seeder
 
         // Transaction 2: Rina Saputri (1 day ago)
         // Service: Cuci kering setrika (Normal) x 2.5 kg -> Subtotal: 30.000, Tax (12.5%): 3.750, Total: 33.750
-        $date2 = Carbon::now()->subDays(1);
+        $date2 = Carbon::now()->subDays(1)->setTime(13, 45, 0);
         $tx2 = Transaksi::create([
             'pelanggan_id'      => $customer2->id,
             'invoice'           => '1002',
@@ -91,7 +103,7 @@ class DatabaseSeeder extends Seeder
 
         // Transaction 3: Fajar Nugroho (4 hours ago)
         // Service: Pembersih Pakaian (Express) x 2 items -> Subtotal: 44.000, Tax (12.5%): 5.500, Total: 49.500
-        $date3 = Carbon::now()->subHours(4);
+        $date3 = Carbon::now()->setTime(10, 30, 0);
         $tx3 = Transaksi::create([
             'pelanggan_id'      => $customer3->id,
             'invoice'           => '1003',
@@ -114,7 +126,7 @@ class DatabaseSeeder extends Seeder
 
         // Transaction 4: Dwi Lestari (30 mins ago)
         // Service: Cuci & Lipat (Express) x 2 kg -> Subtotal: 30.000, Tax (12.5%): 3.750, Total: 33.750
-        $date4 = Carbon::now()->subMinutes(30);
+        $date4 = Carbon::now()->setTime(15, 20, 0);
         $tx4 = Transaksi::create([
             'pelanggan_id'      => $customer4->id,
             'invoice'           => '1004',

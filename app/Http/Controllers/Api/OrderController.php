@@ -28,8 +28,10 @@ class OrderController extends Controller
         );
 
         $lastTransaksi = Transaksi::orderBy('id', 'desc')->first();
-        $nextId = $lastTransaksi ? $lastTransaksi->id + 1 : 1001;
-        $invoice = (string)$nextId;
+        $nextInvoice = ($lastTransaksi && is_numeric($lastTransaksi->invoice)) 
+            ? intval($lastTransaksi->invoice) + 1 
+            : 1001;
+        $invoice = (string)$nextInvoice;
 
         $order = Transaksi::create([
             'pelanggan_id'     => $pelanggan->id,

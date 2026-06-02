@@ -17,6 +17,9 @@ return new class extends Migration
             $table->text('alamat');
             $table->integer('total_harga');
             $table->string('status_pembayaran')->default('pending');
+            $table->text('catatan')->nullable();
+            $table->string('metode_pembayaran')->default('cash');
+            $table->string('kasir')->default('Siti Aminah');
             $table->timestamps();
         });
     }

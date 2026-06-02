@@ -41,8 +41,13 @@ class AuthController extends Controller
         // 3. Fitur Auto-Create User Test (Jika database masih kosong)
         if (User::count() === 0) {
             User::create([
-                'name' => 'Riana Rasti',
+                'name' => 'Siti Aminah',
                 'email' => 'test@example.com',
+                'password' => Hash::make('password'),
+            ]);
+            User::create([
+                'name' => 'Budi Susanto',
+                'email' => 'budi@example.com',
                 'password' => Hash::make('password'),
             ]);
         }

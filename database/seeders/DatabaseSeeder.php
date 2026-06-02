@@ -17,9 +17,15 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 1. Seed Cashier User
-        $cashier = User::create([
-            'name' => 'Riana Rasti',
+        $cashier1 = User::create([
+            'name' => 'Siti Aminah',
             'email' => 'test@example.com',
+            'password' => Hash::make('password'),
+        ]);
+
+        $cashier2 = User::create([
+            'name' => 'Budi Susanto',
+            'email' => 'budi@example.com',
             'password' => Hash::make('password'),
         ]);
 
@@ -56,7 +62,7 @@ class DatabaseSeeder extends Seeder
 
         // 4. Seed Transaction Records (Transaksi & DetailTransaksi)
         // Transaction 1: Amri Pratama (2 days ago)
-        // Service: Cuci kering setrika (Normal) x 1.25 kg -> Subtotal: 15.000, Tax (12.5%): 1.875, Total: 16.875
+        // Service: Cuci kering setrika (Normal) x 2 kg -> Subtotal: 24.000, Tax (11%): 2.640, Total: 26.640
         $date1 = Carbon::now()->subDays(2)->setTime(9, 15, 0);
         $tx1 = Transaksi::create([
             'pelanggan_id'      => $customer1->id,
@@ -64,22 +70,25 @@ class DatabaseSeeder extends Seeder
             'nama_pelanggan'    => $customer1->nama,
             'nomor_hp'          => $customer1->nomor_hp,
             'alamat'            => $customer1->alamat,
-            'total_harga'       => 16875,
+            'total_harga'       => 26640,
             'status_pembayaran'  => 'selesai',
+            'catatan'           => 'Cuci bersih, jangan terlalu wangi',
+            'metode_pembayaran' => 'cash',
+            'kasir'             => 'Siti Aminah',
             'created_at'        => $date1,
             'updated_at'        => $date1
         ]);
         DetailTransaksi::create([
             'transaksi_id' => $tx1->id,
             'layanan_id'   => $layananNormal3->id,
-            'jumlah'       => 1.25,
-            'subtotal'     => 15000,
+            'jumlah'       => 2,
+            'subtotal'     => 24000,
             'created_at'   => $date1,
             'updated_at'   => $date1
         ]);
 
         // Transaction 2: Rina Saputri (1 day ago)
-        // Service: Cuci kering setrika (Normal) x 2.5 kg -> Subtotal: 30.000, Tax (12.5%): 3.750, Total: 33.750
+        // Service: Cuci kering setrika (Normal) x 3 kg -> Subtotal: 36.000, Tax (11%): 3.960, Total: 39.960
         $date2 = Carbon::now()->subDays(1)->setTime(13, 45, 0);
         $tx2 = Transaksi::create([
             'pelanggan_id'      => $customer2->id,
@@ -87,22 +96,25 @@ class DatabaseSeeder extends Seeder
             'nama_pelanggan'    => $customer2->nama,
             'nomor_hp'          => $customer2->nomor_hp,
             'alamat'            => $customer2->alamat,
-            'total_harga'       => 33750,
-            'status_pembayaran'  => 'selesai',
+            'total_harga'       => 39960,
+            'status_pembayaran'  => 'diambil',
+            'catatan'           => 'Lipat rapi saja',
+            'metode_pembayaran' => 'tf',
+            'kasir'             => 'Budi Susanto',
             'created_at'        => $date2,
             'updated_at'        => $date2
         ]);
         DetailTransaksi::create([
             'transaksi_id' => $tx2->id,
             'layanan_id'   => $layananNormal3->id,
-            'jumlah'       => 2.5,
-            'subtotal'     => 30000,
+            'jumlah'       => 3,
+            'subtotal'     => 36000,
             'created_at'   => $date2,
             'updated_at'   => $date2
         ]);
 
         // Transaction 3: Fajar Nugroho (4 hours ago)
-        // Service: Pembersih Pakaian (Express) x 2 items -> Subtotal: 44.000, Tax (12.5%): 5.500, Total: 49.500
+        // Service: Pembersih Pakaian (Express) x 2 items -> Subtotal: 44.000, Tax (11%): 4.840, Total: 48.840
         $date3 = Carbon::now()->setTime(10, 30, 0);
         $tx3 = Transaksi::create([
             'pelanggan_id'      => $customer3->id,
@@ -110,8 +122,11 @@ class DatabaseSeeder extends Seeder
             'nama_pelanggan'    => $customer3->nama,
             'nomor_hp'          => $customer3->nomor_hp,
             'alamat'            => $customer3->alamat,
-            'total_harga'       => 49500,
+            'total_harga'       => 48840,
             'status_pembayaran'  => 'selesai',
+            'catatan'           => 'Gantung jas warna hitam',
+            'metode_pembayaran' => 'qris',
+            'kasir'             => 'Siti Aminah',
             'created_at'        => $date3,
             'updated_at'        => $date3
         ]);
@@ -125,7 +140,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Transaction 4: Dwi Lestari (30 mins ago)
-        // Service: Cuci & Lipat (Express) x 2 kg -> Subtotal: 30.000, Tax (12.5%): 3.750, Total: 33.750
+        // Service: Cuci & Lipat (Express) x 2 kg -> Subtotal: 30.000, Tax (11%): 3.300, Total: 33.300
         $date4 = Carbon::now()->setTime(15, 20, 0);
         $tx4 = Transaksi::create([
             'pelanggan_id'      => $customer4->id,
@@ -133,8 +148,11 @@ class DatabaseSeeder extends Seeder
             'nama_pelanggan'    => $customer4->nama,
             'nomor_hp'          => $customer4->nomor_hp,
             'alamat'            => $customer4->alamat,
-            'total_harga'       => 33750,
-            'status_pembayaran'  => 'pending',
+            'total_harga'       => 33300,
+            'status_pembayaran'  => 'proses',
+            'catatan'           => 'Jangan dicampur dengan baju putih',
+            'metode_pembayaran' => 'cash',
+            'kasir'             => 'Budi Susanto',
             'created_at'        => $date4,
             'updated_at'        => $date4
         ]);
@@ -148,12 +166,12 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 5. Seed Omsets (aggregate calculations)
-        Omset::create(['tanggal' => $date1->toDateString(), 'total_omset' => 16875]);
-        Omset::create(['tanggal' => $date2->toDateString(), 'total_omset' => 33750]);
+        Omset::create(['tanggal' => $date1->toDateString(), 'total_omset' => 26640]);
+        Omset::create(['tanggal' => $date2->toDateString(), 'total_omset' => 39960]);
         
         $todayOmsetTotal = 0;
-        if ($date3->isToday()) $todayOmsetTotal += 49500;
-        if ($date4->isToday()) $todayOmsetTotal += 33750;
+        if ($date3->isToday()) $todayOmsetTotal += 48840;
+        if ($date4->isToday()) $todayOmsetTotal += 33300;
         
         if ($todayOmsetTotal > 0) {
             Omset::create(['tanggal' => Carbon::today()->toDateString(), 'total_omset' => $todayOmsetTotal]);

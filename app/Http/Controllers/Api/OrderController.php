@@ -19,7 +19,10 @@ class OrderController extends Controller
             'nomor' => 'required|string|max:20',
             'alamat' => 'required|string',
             'total' => 'required|integer|min:0',
-            'cart' => 'nullable|array'
+            'cart' => 'nullable|array',
+            'catatan' => 'nullable|string',
+            'metode_pembayaran' => 'nullable|string',
+            'kasir' => 'nullable|string'
         ]);
 
         $pelanggan = Pelanggan::firstOrCreate(
@@ -40,7 +43,10 @@ class OrderController extends Controller
             'nomor_hp'         => $request->nomor,
             'alamat'           => $request->alamat,
             'total_harga'      => $request->total,
-            'status_pembayaran' => 'pending'
+            'status_pembayaran' => 'antri',
+            'catatan'          => $request->catatan,
+            'metode_pembayaran'=> $request->metode_pembayaran ?? 'cash',
+            'kasir'            => $request->kasir ?? 'Siti Aminah'
         ]);
 
         if ($request->has('cart') && is_array($request->cart)) {
@@ -127,7 +133,7 @@ class OrderController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|string|in:pending,proses,selesai,cancel'
+            'status' => 'required|string|in:antri,proses,selesai,diambil,batal'
         ]);
 
         $transaksi = Transaksi::find($id);

@@ -15,7 +15,10 @@ class Transaksi extends Model
         'nomor_hp',
         'alamat',
         'total_harga',
-        'status_pembayaran'
+        'status_pembayaran',
+        'catatan',
+        'metode_pembayaran',
+        'kasir'
     ];
 
     public function pelanggan(): BelongsTo

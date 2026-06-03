@@ -103,7 +103,7 @@ class OrderController extends Controller
         $orderHariIni = Transaksi::whereDate('created_at', $today)->count();
         $pelangganAktif = Transaksi::distinct('pelanggan_id')->count('pelanggan_id');
 
-        $pendingCount = Transaksi::where('status_pembayaran', 'pending')->count();
+        $pendingCount = Transaksi::whereIn('status_pembayaran', ['antri', 'proses', 'pending'])->count();
         $totalCount = Transaksi::count();
         $prosesString = $pendingCount . '/' . $totalCount;
 
@@ -121,10 +121,10 @@ class OrderController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => [
-                'order_hari_ini' => $orderHariIni > 0 ? $orderHariIni : 26,
-                'pelanggan_aktif' => $pelangganAktif > 0 ? $pelangganAktif : 5,
-                'proses' => $totalCount > 0 ? $prosesString : '1/6',
-                'pemasukan_hari_ini' => $pemasukanHariIni > 0 ? (int)$pemasukanHariIni : 250000,
+                'order_hari_ini' => (int)$orderHariIni,
+                'pelanggan_aktif' => (int)$pelangganAktif,
+                'proses' => $prosesString,
+                'pemasukan_hari_ini' => (int)$pemasukanHariIni,
                 'latest_transactions' => $latestTransactions
             ]
         ]);
@@ -152,6 +152,57 @@ class OrderController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Status transaksi berhasil diperbarui',
+            'data' => $transaksi
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $transaksi = Transaksi::find($id);
+
+        if (!$transaksi) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Transaksi tidak ditemukan'
+            ], 404);
+        }
+
+        // Hapus detail transaksi terlebih dahulu untuk menjaga relasi
+        $transaksi->details()->delete();
+        $transaksi->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Transaksi berhasil dihapus'
+        ]);
+    }
+
+    public function updateCustomerInfo(Request $request, $id)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'nomor' => 'required|string|max:20',
+            'alamat' => 'required|string'
+        ]);
+
+        $transaksi = Transaksi::find($id);
+
+        if (!$transaksi) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Transaksi tidak ditemukan'
+            ], 404);
+        }
+
+        $transaksi->update([
+            'nama_pelanggan' => $request->nama,
+            'nomor_hp' => $request->nomor,
+            'alamat' => $request->alamat
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Informasi pelanggan berhasil diperbarui',
             'data' => $transaksi
         ]);
     }

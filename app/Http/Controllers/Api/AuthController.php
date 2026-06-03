@@ -65,6 +65,10 @@ class AuthController extends Controller
             ], 401);
         }
 
+        // Set user to online
+        $user->is_online = true;
+        $user->save();
+
         // 6. Respon Sukses untuk User Biasa / Kasir
         return response()->json([
             'status' => 'success',
@@ -83,9 +87,35 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        $name = $request->input('name');
+        if ($name) {
+            $user = User::where('name', $name)->first();
+            if ($user) {
+                $user->is_online = false;
+                $user->save();
+            }
+        }
         return response()->json([
             'status' => 'success',
             'message' => 'Logged out successfully'
+        ]);
+    }
+
+    public function cashiers()
+    {
+        $users = User::all()->map(function($user) {
+            return [
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => 'KASIR',
+                'status' => $user->is_online ? 'Online / Aktif' : 'Offline',
+                'initials' => strtoupper(substr($user->name, 0, 2)) // simple fallback
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $users
         ]);
     }
 }

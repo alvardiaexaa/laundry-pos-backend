@@ -108,7 +108,7 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'role' => 'KASIR',
-                'status' => $user->is_online ? 'Online / Aktif' : 'Offline',
+                'status' => $user->is_online ? 'Online' : 'Offline',
                 'initials' => strtoupper(substr($user->name, 0, 2)) // simple fallback
             ];
         });
@@ -117,5 +117,90 @@ class AuthController extends Controller
             'status' => 'success',
             'data' => $users
         ]);
+    }
+
+    public function registerCashier(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'is_online' => false
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Cashier created successfully',
+            'data' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => 'KASIR',
+                'status' => 'Offline',
+                'initials' => strtoupper(substr($user->name, 0, 2))
+            ]
+        ]);
+    }
+
+    public function updateCashier(Request $request, $email)
+    {
+        $user = User::where('email', $email)->first();
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Karyawan tidak ditemukan'
+            ], 404);
+        }
+
+        $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|string|email|max:255|unique:users,email,'.$user->id,
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        if ($request->has('name')) {
+            $user->name = $request->name;
+        }
+        if ($request->has('email')) {
+            $user->email = $request->email;
+        }
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Cashier updated successfully',
+            'data' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => 'KASIR',
+                'status' => $user->is_online ? 'Online' : 'Offline',
+                'initials' => strtoupper(substr($user->name, 0, 2))
+            ]
+        ]);
+    }
+
+    public function deleteCashier($email)
+    {
+        $user = User::where('email', $email)->first();
+        if ($user) {
+            $user->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Cashier deleted successfully'
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Cashier not found'
+        ], 404);
     }
 }
